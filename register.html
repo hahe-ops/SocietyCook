@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create an account</h1>
+<form method="post" class="panel">
+  <label>Full name<input name="name" required></label>
+  <label>Email<input type="email" name="email" required></label>
+  <label>Password<input type="password" name="password" minlength="6" required></label>
+  <label>Account type
+    <select name="role" required>
+      <option value="resident">Resident</option>
+      <option value="cook">Cook</option>
+    </select>
+  </label>
+  <label>Housing society name<input name="society" placeholder="e.g. Green Residency" required></label>
+  <button type="submit">Register</button>
+</form>
+{% endblock %}

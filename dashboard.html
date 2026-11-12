@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+{% if session.get('role') == 'resident' %}
+  <h2>Available cooks in {{ session.get('society') }}</h2>
+  {% if cooks %}
+    <div class="cards">
+    {% for cook in cooks %}
+      <section class="panel">
+        <h3>{{ cook.name }}</h3>
+        <p>Monthly service fee: ₹{{ "%.2f"|format(cook.monthly_fee) }}</p>
+        <p>Estimated share per currently booking household: ₹{{ "%.2f"|format(cook.share_estimate) }}</p>
+        <form method="post" action="{{ url_for('book', cook_id=cook.user_id) }}">
+          <label>Date<input type="date" name="slot_date" required></label>
+          <label>Time<input type="time" name="slot_time" required></label>
+          <button type="submit">Book cook</button>
+        </form>
+      </section>
+    {% endfor %}
+    </div>
+  {% else %}
+    <p>No cooks are registered in your society yet.</p>
+  {% endif %}
+{% else %}
+  <p>These are your assigned bookings.</p>
+{% endif %}
+
+<h2>{% if session.get('role') == 'cook' %}Assigned bookings{% else %}Your bookings{% endif %}</h2>
+{% if bookings %}
+<table>
+  <tr>
+    <th>{% if session.get('role') == 'cook' %}Resident{% else %}Cook{% endif %}</th>
+    <th>Date</th><th>Time</th><th>Status</th><th>Action</th>
+  </tr>
+  {% for booking in bookings %}
+  <tr>
+    <td>{% if session.get('role') == 'cook' %}{{ booking.resident_name }}{% else %}{{ booking.cook_name }}{% endif %}</td>
+    <td>{{ booking.slot_date }}</td>
+    <td>{{ booking.slot_time }}</td>
+    <td>{{ booking.status }}</td>
+    <td>
+      {% if booking.status == 'Confirmed' %}
+      <form method="post" action="{{ url_for('cancel', booking_id=booking.id) }}">
+        <button class="secondary" type="submit">Cancel</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No bookings yet.</p>
+{% endif %}
+{% endblock %}
