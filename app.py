@@ -7,7 +7,6 @@ import os
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "change-this-secret-key")
 
-# Update these values for your local MySQL setup.
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "user": os.getenv("DB_USER", "root"),
@@ -117,9 +116,6 @@ def dashboard():
         WHERE b.resident_id=%s ORDER BY b.slot_date, b.slot_time
     """, (session["user_id"],))
     bookings = cur.fetchall()
-
-    # Simple estimate: divide a cook's monthly fee among distinct households
-    # that have an active booking with that cook in the same society.
     for cook in cooks:
         cur.execute("""
             SELECT COUNT(DISTINCT b.resident_id) AS households
