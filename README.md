@@ -1,6 +1,11 @@
 # SocietyCook: Shared Cooking Service Management System
 SocietyCook is a prototype built with **Python, Flask, MySQL, HTML and CSS**.
 It demonstrates how residents in the same housing society can find a cook, book cooking slots and manage bookings. Cooks can log in to view their assigned bookings.
+
+##Demonstration
+Video demonstration link:
+https://drive.google.com/file/d/10YwvkUDwG_u64Pwg5oK3h93Y02YCGgVs/view?usp=sharing
+https://drive.google.com/file/d/1ZL86zy4ejAWraUKzh6_Hox_s3fqVUpXT/view?usp=sharing
 ## Features
 
 - Resident and cook registration
