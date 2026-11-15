@@ -1,5 +1,5 @@
-# SocietyCook; Shared Cooking Service Management System
-SocietyCook is a small college-project prototype built with **Python, Flask, MySQL, HTML and CSS**.
+# SocietyCook: Shared Cooking Service Management System
+SocietyCook is a prototype built with **Python, Flask, MySQL, HTML and CSS**.
 It demonstrates how residents in the same housing society can find a cook, book cooking slots and manage bookings. Cooks can log in to view their assigned bookings.
 ## Features
 
@@ -14,9 +14,7 @@ It demonstrates how residents in the same housing society can find a cook, book 
 ## Project structure
 SocietyCook/
 ├── app.py
-├── schema.sql
 ├── requirements.txt
-├── README.md
 ├── templates/
 │   ├── base.html
 │   ├── home.html
