@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SocietyCook</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a class="brand" href="/">SocietyCook</a>
+        <button id="logoutButton" class="secondary">Logout</button>
+    </nav>
+
+    <main>
+        <h1 id="welcome">Dashboard</h1>
+        <p id="accountInfo"></p>
+
+        <section id="cookSection">
+            <h2>Available cooks</h2>
+            <div id="cookList" class="cards"></div>
+        </section>
+
+        <h2 id="bookingHeading">Your bookings</h2>
+        <div id="bookingList"></div>
+    </main>
+
+    <script>
+        async function loadDashboard() {
+            const response = await fetch("/api/dashboard");
+            if (!response.ok) {
+                window.location.href = "/login";
+                return;
+            }
+
+            const data = await response.json();
+            document.getElementById("welcome").textContent = "Welcome, " + data.name;
+            document.getElementById("accountInfo").textContent = data.role + " | " + data.society;
+
+            if (data.role === "cook") {
+                document.getElementById("cookSection").style.display = "none";
+                document.getElementById("bookingHeading").textContent = "Assigned bookings";
+            } else {
+                showCooks(data.cooks);
+            }
+            showBookings(data.bookings, data.role);
+        }
+
+        function showCooks(cooks) {
+            const list = document.getElementById("cookList");
+            if (!cooks.length) {
+                list.textContent = "No cooks available in your society.";
+                return;
+            }
+
+            list.innerHTML = cooks.map(cook => `
+                <section class="panel">
+                    <h3>${cook.name}</h3>
+                    <p>Monthly fee: ₹${cook.monthly_fee}</p>
+                    <form class="bookForm" data-id="${cook.user_id}">
+                        <label>Date <input type="date" name="date" required></label>
+                        <label>Time <input type="time" name="time" required></label>
+                        <button>Book cook</button>
+                    </form>
+                </section>
+            `).join("");
+        }
+
+        function showBookings(bookings, role) {
+            const list = document.getElementById("bookingList");
+            if (!bookings.length) {
+                list.textContent = "No bookings yet.";
+                return;
+            }
+
+            list.innerHTML = bookings.map(booking => {
+                const person = role === "cook" ? booking.resident_name : booking.cook_name;
+                return `
+                    <section class="panel">
+                        <h3>${person}</h3>
+                        <p>Date: ${booking.slot_date}</p>
+                        <p>Time: ${booking.slot_time}</p>
+                        <p>Status: ${booking.status}</p>
+                        ${booking.status === "Confirmed" ?
+                            `<button class="cancelButton" data-id="${booking.id}">Cancel booking</button>` : ""}
+                    </section>
+                `;
+            }).join("");
+        }
+
+        document.addEventListener("submit", async function(event) {
+            if (!event.target.classList.contains("bookForm")) return;
+            event.preventDefault();
+
+            const form = event.target;
+            await fetch("/api/book/" + form.dataset.id, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    slot_date: form.elements.date.value,
+                    slot_time: form.elements.time.value
+                })
+            });
+            loadDashboard();
+        });
+
+        document.addEventListener("click", async function(event) {
+            if (!event.target.classList.contains("cancelButton")) return;
+            await fetch("/api/cancel/" + event.target.dataset.id, {method: "POST"});
+            loadDashboard();
+        });
+
+        document.getElementById("logoutButton").addEventListener("click", async function() {
+            await fetch("/api/logout", {method: "POST"});
+            window.location.href = "/";
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>

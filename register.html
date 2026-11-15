@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join SocietyCook</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .role-options {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .role-card {
+            flex: 1;
+            padding: 25px 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            background: white;
+        }
+
+        .role-card.selected {
+            border-color: #e58b55;
+            background: #fff5ed;
+        }
+
+        .role-card h3 {
+            margin: 8px 0;
+        }
+
+        #detailsForm {
+            display: none;
+        }
+
+        .back-button {
+            background: transparent;
+            color: #555;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .cook-fields {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<main class="container">
+
+    <h1>SocietyCook</h1>
+
+    <!-- STEP 1 -->
+    <section id="roleSection">
+        <h2>Join SocietyCook</h2>
+        <p>First, tell us who you are.</p>
+
+        <div class="role-options">
+            <div class="role-card" onclick="selectRole('resident', this)">
+                <h2>🏠</h2>
+                <h3>Resident</h3>
+                <p>Find and book cooks.</p>
+            </div>
+
+            <div class="role-card" onclick="selectRole('cook', this)">
+                <h2>👨‍🍳</h2>
+                <h3>Cook</h3>
+                <p>Offer your cooking services.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <form id="detailsForm">
+
+        <button type="button" class="back-button"
+                onclick="goBack()">← Go Back</button>
+
+        <h2 id="formHeading">Create your account</h2>
+
+        <input type="hidden" id="role">
+
+        <input type="text" id="name"
+               placeholder="Full Name" required>
+
+        <input type="email" id="email"
+               placeholder="Email Address" required>
+
+        <input type="password" id="password"
+               placeholder="Password" required>
+
+        <input type="text" id="society"
+               placeholder="Society Name" required>
+
+        <!-- ONLY FOR COOKS -->
+        <div class="cook-fields" id="cookFields">
+
+            <h3>Your cooking profile</h3>
+
+            <input type="number" id="fee"
+                   placeholder="Monthly Charges (₹)"
+                   min="1">
+
+            <input type="number" id="experience"
+                   placeholder="Years of Experience"
+                   min="0">
+
+            <input type="text" id="specialties"
+                   placeholder="Specialities (e.g. North Indian, South Indian)">
+
+            <textarea id="bio"
+                      placeholder="Tell residents a little about yourself"></textarea>
+
+        </div>
+
+        <button type="submit">Create Account</button>
+
+    </form>
+
+    <p>Already registered? <a href="/login">Login</a></p>
+
+</main>
+
+<script>
+    function selectRole(role, card) {
+        document.getElementById("role").value = role;
+
+        document.querySelectorAll(".role-card").forEach(function(item) {
+            item.classList.remove("selected");
+        });
+
+        card.classList.add("selected");
+
+        document.getElementById("roleSection").style.display = "none";
+        document.getElementById("detailsForm").style.display = "block";
+
+        const isCook = role === "cook";
+
+        document.getElementById("cookFields").style.display =
+            isCook ? "block" : "none";
+
+        document.getElementById("formHeading").textContent =
+            isCook ? "Create your Cook Account" : "Create your Resident Account";
+
+        document.getElementById("fee").required = isCook;
+        document.getElementById("experience").required = isCook;
+        document.getElementById("specialties").required = isCook;
+    }
+
+    function goBack() {
+        document.getElementById("detailsForm").style.display = "none";
+        document.getElementById("roleSection").style.display = "block";
+    }
+
+    document.getElementById("detailsForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const role = document.getElementById("role").value;
+
+        const userData = {
+            name: document.getElementById("name").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value,
+            society: document.getElementById("society").value.trim(),
+            role: role,
+            monthly_fee: role === "cook"
+                ? document.getElementById("fee").value : null,
+            experience: role === "cook"
+                ? document.getElementById("experience").value : null,
+            specialties: role === "cook"
+                ? document.getElementById("specialties").value.trim() : null,
+            bio: role === "cook"
+                ? document.getElementById("bio").value.trim() : null
+        };
+
+        const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            window.location.href = "/login";
+        } else {
+            alert("Registration could not be completed. Please check your details.");
+        }
+    });
+</script>
+
+</body>
+</html>

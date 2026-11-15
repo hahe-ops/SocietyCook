@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SocietyCook</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="form-page">
+        <h1>Login</h1>
+        <form id="loginForm" class="panel">
+            <input id="email" type="email" placeholder="Email Address" required>
+            <input id="password" type="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p>New user? <a href="/register">Create an account</a></p>
+    </main>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                window.location.href = result.redirect;
+            }
+        });
+    </script>
+</body>
+</html>
